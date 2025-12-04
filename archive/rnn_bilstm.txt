@@ -1,0 +1,111 @@
+# New Neural Network model for FEA dataset
+
+# Author : RICHELET Arthur
+# This model uses Bidirectional LSTM layers to handle sequential data for FEA dataset.
+
+#************************************************************************************
+
+from lib.args import args
+from lib.sequential_model_template import *
+from lib.imports import *
+
+class RNNBiLSTMModel(SequentialModelTemplate):
+    """Neural Network model for Finite Element Analysis (FEA) data, similar to the PaperModelFEA 
+    but with more layers and neurons per layer.
+    """
+    
+    def __init__(self):
+        super().__init__()
+        self.is_sequence_model = True
+        
+        
+    def _build_model(self, feature_dim: int):
+        # model definition (LSTM with Bidirectional layers)
+        self.model = Sequential()
+        self.model.add(Masking(mask_value=0.0, input_shape=(None, feature_dim)))
+        
+        self.model.add(Bidirectional(
+            LSTM(128, return_sequences=True),
+            name="bilstm_1"
+        ))
+        self.model.add(Bidirectional(
+            LSTM(64, return_sequences=False),   # <<< CHANGED: final sequence → vector
+            name="bilstm_2"
+        ))
+
+        # Fully-connected layers for regression
+        self.model.add(Dense(64))
+        self.model.add(LeakyReLU())
+        self.model.add(Dense(32))
+        self.model.add(LeakyReLU())
+        
+        # Output is a single residual velocity
+        self.model.add(Dense(1, name="output"))   # <<< CHANGED: removed TimeDistributed
+        
+        self.model.compile(loss='mse', optimizer=tf.keras.optimizers.Adam(learning_rate=0.001))
+
+    def preprocess_data(self, categorical_features: list[int|str], numeric_features: list[int|str]):
+        """Preprocess the input features by encoding categorical variables.
+        """
+        sequences = []
+        targets = []
+
+        # group original raw DataFrame (self.X)
+        grouped = self.X.groupby(["Velocity", "Projectile", "Angle", "Laminate"])
+
+        # Prepare column transformer ONCE
+        ct = ColumnTransformer(
+            transformers=[
+                ("cat", OneHotEncoder(handle_unknown="ignore"), categorical_features),
+                ("num", MinMaxScaler(), numeric_features)
+            ],
+            remainder="drop"
+        )
+        ct.fit(self.X)
+
+        # build sequences
+        for _, group in grouped:
+            group_sorted = group.sort_values(by="Time")
+            idx = group_sorted.index.values
+
+            # Encode X in this sequence
+            X_seq = ct.transform(group_sorted).astype("float32")
+            sequences.append(X_seq)
+
+            # Use ONLY FINAL residual velocity for seq→value regression
+            y_final = self.Y.loc[idx].astype("float32").values[-1]   # <<< CHANGED
+            targets.append(y_final)
+
+        # Pad X sequences only
+        self.X = pad_sequences(sequences, padding="post", dtype="float32")
+
+        # Y stays (n_sequences, 1)
+        self.Y = np.array(targets, dtype="float32").reshape(-1, 1)  # <<< CHANGED
+
+        # Feature dimension for RNN
+        feature_dim = self.X.shape[2]
+
+        self._build_model(feature_dim)
+        
+    def split_dataset(self, test_size=0.2, val_size=0.5, random_state=415):
+        n = len(self.X)
+        indices = np.arange(n)
+
+        train_idx, temp_idx = train_test_split(indices, test_size=test_size, random_state=random_state)
+        val_idx, test_idx = train_test_split(temp_idx, test_size=val_size, random_state=random_state)
+
+        self.dataset = SplittedDatasets.manual_split(
+            train_x=self.X[train_idx],
+            test_x=self.X[test_idx],
+            train_y=self.Y[train_idx],
+            test_y=self.Y[test_idx],
+            validation_x=self.X[val_idx],
+            validation_y=self.Y[val_idx]
+        )
+        
+    def train_model(self):
+        # training the model with EarlyStopping callback
+        monitor = EarlyStopping(monitor='val_loss', min_delta=1e-3, patience=10, verbose=1, mode='auto')
+        self.train(epochs=1000, verbose=2, callbacks=[monitor])
+    
+#************************************************************************************
