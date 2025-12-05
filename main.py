@@ -50,8 +50,7 @@ def run_pipeline(model_instance: ModelTemplate):
     if args.save_model: model_instance.save_model()
     
     #Plotting training and validation loss curves
-    if args.plot_loss or args.plot_all: model_instance.plot_loss_curves()
-    if args.plot_loss_log or args.plot_all: model_instance.plot_loss_curves(log_scale=True)
+    if args.plot_loss or args.plot_loss_log or args.plot_all: model_instance.plot_loss_curves()
     
     #Getting relative errors
     train_error, val_error, test_error = model_instance.relative_errors()
