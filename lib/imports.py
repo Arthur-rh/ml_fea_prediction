@@ -19,5 +19,5 @@ from keras.layers import GlobalAveragePooling1D, Dropout, MaxPool1D, Flatten, In
 from keras import Model
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder, MinMaxScaler
 from sklearn.compose import ColumnTransformer
-from tensorflow.keras.callbacks import EarlyStopping # type: ignore[import] (doesn't recognize keras even if installed)
-from tensorflow.keras.preprocessing.sequence import pad_sequences # type: ignore[import]
+from keras.callbacks import EarlyStopping, ReduceLROnPlateau # type: ignore[import] (doesn't recognize keras even if installed)
+from keras.preprocessing.sequence import pad_sequences # type: ignore[import]
