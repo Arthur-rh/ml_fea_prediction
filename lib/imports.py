@@ -17,6 +17,7 @@ from keras.models import Sequential
 from keras.layers import Dense, LSTM, Bidirectional, Masking, LeakyReLU, TimeDistributed, Conv1D, BatchNormalization
 from keras.layers import GlobalAveragePooling1D, Dropout, MaxPool1D, Flatten, Input, MaxPooling1D, GRU
 from keras import Model
+from keras.optimizers import Adam, Nadam
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder, MinMaxScaler
 from sklearn.compose import ColumnTransformer
 from keras.callbacks import EarlyStopping, ReduceLROnPlateau # type: ignore[import] (doesn't recognize keras even if installed)
