@@ -46,12 +46,12 @@ def run_pipeline(model_instance: ModelTemplate):
         sns.kdeplot(scaled["Time"],ax=ob2)
         sns.kdeplot(scaled["Velocity"],ax=ob2)
         
-    model_instance.split_dataset()
     model_instance.train_model()
     if args.save_model: model_instance.save_model()
     
     #Plotting training and validation loss curves
     if args.plot_loss or args.plot_all: model_instance.plot_loss_curves()
+    if args.plot_loss_log or args.plot_all: model_instance.plot_loss_curves(log_scale=True)
     
     #Getting relative errors
     train_error, val_error, test_error = model_instance.relative_errors()

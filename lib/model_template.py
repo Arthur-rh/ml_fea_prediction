@@ -1,6 +1,6 @@
 from lib.imports import *
+from lib.args import args
 from lib.splitted_dataset import SplittedDatasets
-
 class ModelTemplate:
     def __init__(self):
         pass
@@ -73,6 +73,7 @@ class ModelTemplate:
         plt.suptitle(f'Model: {self.__class__.__name__} | Hash: {self.hash}')
         sns.lineplot(x=epochs, y=self.loss_values, label='Training loss', color='blue')
         sns.lineplot(x=epochs, y=self.val_loss_values, label='Validation loss', color='red')
+        if args.plot_loss_log: plt.yscale('log')
         plt.title('Training and Validation Loss')
         plt.xlabel('Epochs')
         plt.ylabel('Loss')

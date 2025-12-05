@@ -20,6 +20,12 @@ parser.add_argument(
     action="store_true",
     help="Plot training loss after training"
 )
+# arguement to plot training loss curves on log scale after training
+parser.add_argument(
+    "--plot-loss-log",
+    action="store_true",
+    help="Plot training loss on a logy scale after training"
+)
 # argument to plot feature scaling results
 parser.add_argument(
     "--plot-scaling",

@@ -44,6 +44,7 @@ Department of Aerospace Engineering and Engineering Mechanics, University of Cin
         sc = preprocessing.MinMaxScaler(feature_range=(0,1))
         self.X[:,[10,11]] = sc.fit_transform((self.X[:, [10,11]]))
         self.X = pd.DataFrame(self.X)
+        self.split_dataset()
         
     def train_model(self):
         # training the model with EarlyStopping callback
