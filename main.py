@@ -72,6 +72,12 @@ Relative Error on Testing dataset: {test_error*100:.2f} %
 Mean Squared Error on Validation dataset: {mse_val:.4f}
 Mean Absolute Error on Validation dataset: {mae_val:.4f}
 R² Score on Validation dataset: {r2_val:.4f}
+
+Mean Squared Error on Testing dataset: {mse_test:.4f}
+Mean Absolute Error on Testing dataset: {mae_test:.4f}
+R² Score on Testing dataset: {r2_test:.4f}
+
+
 """
 
     print(results_string)
@@ -83,10 +89,10 @@ R² Score on Validation dataset: {r2_val:.4f}
     file_exists = os.path.isfile(f'results_fea.csv')
     if not file_exists:
         with open(f'results_fea.csv', 'w') as f:
-            f.write("model_name,hash,training_time_sec,training_epochs,loss,val_loss,rel_val_error,rel_test_err,val_mse,val_mae,val_r2\n")
+            f.write("model_name,hash,training_time_sec,training_epochs,loss,val_loss,rel_val_error,rel_test_err,val_mse,val_mae,val_r2,test_mse,test_mae,test_r2\n")
 
     with open(f'results_fea.csv', 'a') as f:
-        f.write(f"{model_instance.get_name()},{model_instance.hash},{model_instance.training_time:.4f},{model_instance.training_epochs},{model_instance.loss_values[-1]:.4f},{model_instance.val_loss_values[-1]:.4f},{val_error:.4f},{test_error:.4f},{mse_val:.4f},{mae_val:.4f},{r2_val:.4f}\n")
+        f.write(f"{model_instance.get_name()},{model_instance.hash},{model_instance.training_time:.4f},{model_instance.training_epochs},{model_instance.loss_values[-1]:.4f},{model_instance.val_loss_values[-1]:.4f},{val_error:.4f},{test_error:.4f},{mse_val:.4f},{mae_val:.4f},{r2_val:.4f},{mse_test:.4f},{mae_test:.4f},{r2_test:.4f}\n")
     
     print(f"Results saved to results_fea.csv\n")
     
