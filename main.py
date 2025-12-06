@@ -1,3 +1,4 @@
+
 import os
 
 from models.cnn1d import CNN1D
@@ -7,8 +8,10 @@ from lib.model_template import ModelTemplate
 from lib.imports import *
 from lib.args import args
 
-from models.paper_deeper import DeeperPaperModel
 from models.paper_model import PaperModelFEA
+from models.paper_deeper import DeeperPaperModel
+from models.paper_model_modified import PaperModelModified
+from models.nn_model1 import NNModel1
 from models.lstm_gru import LSTM_GRU_Model
     
 def run_pipeline(model_instance: ModelTemplate):
@@ -57,6 +60,7 @@ def run_pipeline(model_instance: ModelTemplate):
     
     #Calculating regression metrics on validation dataset
     mse_val, mae_val, r2_val = model_instance.regression_metrics(dataset_type='validation')
+    mse_test, mae_test, r2_test = model_instance.regression_metrics(dataset_type='testing') 
     
     #Compiling results for printing & saving
     results_string: str = f"""Model Results for {model_instance.get_name()} (hash: {model_instance.hash}):
@@ -114,9 +118,11 @@ if __name__ == "__main__":
     models_list = [
         PaperModelFEA(),
         DeeperPaperModel(),
-        CNN1D(),
-        LSTM_GRU_Model(use_gru=False),
-        LSTM_GRU_Model(use_gru=True)
+        PaperModelModified(),
+        NNModel1(),
+        # CNN1D(),
+        # LSTM_GRU_Model(use_gru=False),
+        # LSTM_GRU_Model(use_gru=True)
     ]
     
     if args.model_name == 'list':
@@ -132,9 +138,10 @@ if __name__ == "__main__":
         
     models = {model.get_name(): model for model in models_list}
     print(f"\nSelected Model: {args.model_name}\n")
-    if args.run_multiple_times < 1:
+    if args.run_multiple_times <= 1:
         args.run_multiple_times = 1
     else:
+        raise("Running the training multiple times doesn't work, use 'for i in {1..n}; do py main.py <model> [args]; done' in bash instead.")
         print(f"Running the training {args.run_multiple_times} times:", ) 
     
     for _ in range(args.run_multiple_times):

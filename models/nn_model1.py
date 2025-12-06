@@ -24,7 +24,7 @@ Department of Aerospace Engineering and Engineering Mechanics, University of Cin
         # self.model.add(Dropout(0.1))
         self.model.add(Dense(256, activation=LeakyReLU()))
         self.model.add(Dense(256, activation=LeakyReLU()))
-        self.model.add(Dropout(0.07))
+        # self.model.add(Dropout(0.07))
         self.model.add(Dense(1))
         self.model.compile( loss='mse', optimizer=Nadam(learning_rate=0.005))
 
